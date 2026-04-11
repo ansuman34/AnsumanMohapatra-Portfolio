@@ -4,6 +4,8 @@ import emailjs from "@emailjs/browser";
 const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID || "service_0reoan9";
 const EMAILJS_TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID || "template_qguj85h";
 const EMAILJS_PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || "";
+/** Inbox that receives form submissions — must match EmailJS template “To” if it uses {{to_email}} */
+const CONTACT_INBOX = (import.meta.env.VITE_CONTACT_EMAIL || "").trim();
 
 function scrollToId(id) {
   document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
@@ -174,6 +176,13 @@ export default function App() {
       });
       return;
     }
+    if (!CONTACT_INBOX) {
+      setFormStatus({
+        type: "error",
+        text: "Add VITE_CONTACT_EMAIL (your Gmail) to client/.env so EmailJS knows where to deliver.",
+      });
+      return;
+    }
     const name = form.name.trim();
     const email = form.email.trim();
     const message = form.message.trim();
@@ -195,6 +204,7 @@ export default function App() {
         EMAILJS_SERVICE_ID,
         EMAILJS_TEMPLATE_ID,
         {
+          to_email: CONTACT_INBOX,
           from_name: name,
           from_email: email,
           reply_to: email,
