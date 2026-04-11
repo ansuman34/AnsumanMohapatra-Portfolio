@@ -1,0 +1,1 @@
+# TODO: Push Changes to GitHub&#10;&#10;- [ ] Step 1: Stage all changes (git add .)&#10;- [ ] Step 2: Commit changes with SEO message&#10;- [ ] Step 3: Push to origin/main&#10;- [ ] Step 4: Verify status and log

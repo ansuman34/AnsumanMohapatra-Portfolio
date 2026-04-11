@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import SEOHelmet from './components/SEOHelmet';
 import emailjs from "@emailjs/browser";
 
 const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID || "service_0reoan9";
@@ -249,8 +250,23 @@ export default function App() {
         "sameAs": [
           "https://github.com/ansuman34"
         ],
-        "knowsAbout": ["MERN Stack", "React.js", "Node.js", "MongoDB", "AI"]
+        "knowsAbout": ["MERN Stack", "React.js", "Node.js", "MongoDB", "AI"],
+        "experience": [
+          {
+            "@type": "Role",
+            "name": "Full Stack Developer Intern",
+            "description": "MERN stack development"
+          }
+        ],
+        "hasProject": [
+          {
+            "@type": "SoftwareApplication",
+            "name": "AI Resume Analyzer",
+            "url": "https://github.com/ansuman34/ai-resume-analyzer"
+          }
+        ]
       })}} />
+<SEOHelmet />
       <div className="grain" aria-hidden="true" />
       <div className="orb orb-1" aria-hidden="true" />
       <div className="orb orb-2" aria-hidden="true" />
