@@ -60,6 +60,14 @@ function isValidEmail(value) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
 
+app.get("/", (_req, res) => {
+  res.json({ ok: true, message: "Portfolio server is running." });
+});
+
+app.get("/api", (_req, res) => {
+  res.json({ ok: true, message: "Portfolio backend API is available.", endpoints: ["/api/health", "/api/contact"] });
+});
+
 app.get("/api/health", (_req, res) => {
   res.json({ ok: true, mongo: mongoReady, emailConfigured: Boolean(buildMailer()) });
 });
