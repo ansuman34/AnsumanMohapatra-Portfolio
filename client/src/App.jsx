@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import emailjs from "@emailjs/browser";
 
-const API = "https://ansumanmohapatra-portfolio-production.up.railway.app/api/contact";
+const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID || "service_0reoan9";
+const EMAILJS_TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID || "template_qguj85h";
+const EMAILJS_PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || "";
 
 function scrollToId(id) {
   document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
@@ -12,14 +15,71 @@ export default function App() {
   const toggleRef = useRef(null);
   const nameInputRef = useRef(null);
   const [navOpen, setNavOpen] = useState(false);
+  const [activeProject, setActiveProject] = useState(null);
   const [form, setForm] = useState({ name: "", email: "", message: "" });
   const [formStatus, setFormStatus] = useState({ type: "idle", text: "" });
   const [submitting, setSubmitting] = useState(false);
+
+  const projects = [
+    {
+      title: "AI Resume Analyzer",
+      stack: "MERN + AI",
+      summary:
+        "Full-stack AI-powered resume analysis — parsing, skill extraction, and candidate scoring with a responsive UI.",
+      details:
+        "Built with React, Node.js, Express, and MongoDB. Includes resume upload, AI skill suggestion, candidate scoring, and recruiter dashboard features.",
+      github: "https://github.com/ansuman34/ai-resume-analyzer",
+    },
+    {
+      title: "DocNow",
+      stack: "Healthcare web app",
+      summary:
+        "Medical appointment and symptom assistance platform with doctor booking, patient dashboard, and backend integrations.",
+      details:
+        "Designed a full-stack healthcare platform with patient booking flows, appointment scheduling, and administrative dashboards using the MERN stack.",
+      github: "https://github.com/ansuman34/docnow",
+    },
+    {
+      title: "KFC Clone",
+      stack: "MERN",
+      summary: "Responsive multi-page restaurant experience with cart flow, auth, and order management.",
+      details:
+        "Developed a clone UI with ordering, cart management, user authentication, and backend APIs for product data and checkout handling.",
+      github: "https://github.com/ansuman34/kfc-clone",
+    },
+    {
+      title: "GlideOn",
+      stack: "Prototype",
+      summary: "Eco-friendly commute platform prototype built with HTML, CSS, and JavaScript.",
+      details:
+        "Created a polished prototype for green commuting, featuring route browsing, vehicle options, and a lightweight responsive frontend.",
+      github: "https://github.com/ansuman34/glideon",
+    },
+  ];
 
   const closeNav = useCallback(() => {
     setNavOpen(false);
     document.body.style.overflow = "";
   }, []);
+
+  const openProject = (project) => {
+    setActiveProject(project);
+    document.body.style.overflow = "hidden";
+  };
+
+  const closeProject = () => {
+    setActiveProject(null);
+    document.body.style.overflow = "";
+  };
+
+  useEffect(() => {
+    if (!activeProject) return;
+    const onKeyDown = (e) => {
+      if (e.key === "Escape") closeProject();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [activeProject]);
 
   const openNav = useCallback(() => {
     setNavOpen(true);
@@ -107,27 +167,52 @@ export default function App() {
   const onSubmit = async (e) => {
     e.preventDefault();
     setFormStatus({ type: "idle", text: "" });
-    setSubmitting(true);
-    try {
-      const res = await fetch(API, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        setFormStatus({ type: "error", text: data.error || "Something went wrong. Try again later." });
-        return;
-      }
-      setFormStatus({
-        type: "success",
-        text: "Message sent — check your inbox (and spam). I will reply soon.",
-      });
-      setForm({ name: "", email: "", message: "" });
-    } catch {
+    if (!EMAILJS_PUBLIC_KEY.trim()) {
       setFormStatus({
         type: "error",
-        text: "Network error. Is the server running? From project root run: npm run dev",
+        text: "Add VITE_EMAILJS_PUBLIC_KEY to client/.env (see client/.env.example), then restart Vite.",
+      });
+      return;
+    }
+    const name = form.name.trim();
+    const email = form.email.trim();
+    const message = form.message.trim();
+    if (name.length < 2) {
+      setFormStatus({ type: "error", text: "Please enter your name." });
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setFormStatus({ type: "error", text: "Please enter a valid email address." });
+      return;
+    }
+    if (message.length < 10) {
+      setFormStatus({ type: "error", text: "Please enter a message (at least 10 characters)." });
+      return;
+    }
+    setSubmitting(true);
+    try {
+      await emailjs.send(
+        EMAILJS_SERVICE_ID,
+        EMAILJS_TEMPLATE_ID,
+        {
+          from_name: name,
+          from_email: email,
+          reply_to: email,
+          message,
+        },
+        { publicKey: EMAILJS_PUBLIC_KEY.trim() }
+      );
+      setFormStatus({
+        type: "success",
+        text: "Message sent. I will get back to you soon.",
+      });
+      setForm({ name: "", email: "", message: "" });
+    } catch (err) {
+      const msg =
+        err?.text || err?.message || "Could not send. Check EmailJS template fields and allowed origins.";
+      setFormStatus({
+        type: "error",
+        text: typeof msg === "string" ? msg : "Something went wrong. Try again later.",
       });
     } finally {
       setSubmitting(false);
@@ -347,49 +432,53 @@ export default function App() {
               <h2>Selected projects</h2>
             </header>
             <div className="project-grid">
-              <article className="project-card reveal" data-reveal>
-                <div className="project-card-inner">
-                  <span className="project-icon" aria-hidden="true">
-                    ◆
-                  </span>
-                  <h3>AI Resume Analyzer</h3>
-                  <p className="stack">MERN + AI</p>
-                  <p>Full-stack AI-powered resume analysis — parsing, skill extraction, and candidate scoring with a responsive UI.</p>
-                </div>
-              </article>
-              <article className="project-card reveal" data-reveal>
-                <div className="project-card-inner">
-                  <span className="project-icon" aria-hidden="true">
-                    ◆
-                  </span>
-                  <h3>DocNow</h3>
-                  <p className="stack">Healthcare web app</p>
-                  <p>Medical assistance platform: symptom analysis, doctor booking, dashboards, and backend services.</p>
-                </div>
-              </article>
-              <article className="project-card reveal" data-reveal>
-                <div className="project-card-inner">
-                  <span className="project-icon" aria-hidden="true">
-                    ◆
-                  </span>
-                  <h3>KFC Clone</h3>
-                  <p className="stack">MERN</p>
-                  <p>Responsive multi-page experience with cart flow and user authentication.</p>
-                </div>
-              </article>
-              <article className="project-card reveal" data-reveal>
-                <div className="project-card-inner">
-                  <span className="project-icon" aria-hidden="true">
-                    ◆
-                  </span>
-                  <h3>GlideOn</h3>
-                  <p className="stack">Prototype</p>
-                  <p>Eco-friendly commute platform prototype built with HTML, CSS, and JavaScript.</p>
-                </div>
-              </article>
+              {projects.map((project) => (
+                <article
+                  key={project.title}
+                  className="project-card reveal"
+                  data-reveal
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => openProject(project)}
+                  onKeyDown={(e) => e.key === "Enter" && openProject(project)}
+                >
+                  <div className="project-card-inner">
+                    <span className="project-icon" aria-hidden="true">
+                      ◆
+                    </span>
+                    <h3>{project.title}</h3>
+                    <p className="stack">{project.stack}</p>
+                    <p>{project.summary}</p>
+                    <button className="btn btn-primary project-card-btn" type="button" onClick={(e) => { e.stopPropagation(); openProject(project); }}>
+                      View details
+                    </button>
+                  </div>
+                </article>
+              ))}
             </div>
           </div>
         </section>
+
+        {activeProject && (
+          <div className="project-modal-overlay" onClick={(e) => e.target === e.currentTarget && closeProject()}>
+            <div className="project-modal" role="dialog" aria-modal="true" aria-labelledby="project-modal-title">
+              <button type="button" className="project-modal-close" onClick={closeProject} aria-label="Close project details">
+                ×
+              </button>
+              <h3 id="project-modal-title">{activeProject.title}</h3>
+              <p className="stack">{activeProject.stack}</p>
+              <p>{activeProject.details}</p>
+              <div className="project-modal-actions">
+                <a href={activeProject.github} target="_blank" rel="noopener noreferrer" className="btn btn-primary">
+                  Visit GitHub
+                </a>
+                <button type="button" className="btn btn-ghost" onClick={closeProject}>
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         <section id="education" className="section education">
           <div className="section-inner">

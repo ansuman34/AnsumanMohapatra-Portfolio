@@ -1136,3 +1136,57 @@ main {
     transform: translateY(2px);
   }
 }
+
+.project-card {
+  cursor: pointer;
+}
+
+.project-card-btn {
+  margin-top: 1rem;
+}
+
+.project-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  z-index: 2000;
+}
+
+.project-modal {
+  width: min(720px, 100%);
+  background: rgba(12, 14, 24, 0.98);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 28px;
+  padding: 2rem;
+  box-shadow: 0 25px 90px rgba(0, 0, 0, 0.55);
+  position: relative;
+  color: #fff;
+}
+
+.project-modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 2rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.project-modal-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 1.5rem;
+}
+
+.project-modal .stack {
+  opacity: 0.85;
+  margin-bottom: 1rem;
+}

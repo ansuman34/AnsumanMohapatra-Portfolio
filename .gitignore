@@ -2,5 +2,7 @@ node_modules/
 dist/
 client/dist/
 server/.env
+client/.env
+client/.env.local
 *.log
 .DS_Store
