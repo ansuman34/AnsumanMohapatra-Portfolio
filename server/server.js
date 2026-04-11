@@ -48,11 +48,15 @@ function buildMailer() {
   const user = process.env.SMTP_USER;
   const pass = process.env.SMTP_PASS;
   if (!host || !user || !pass) return null;
+
   return nodemailer.createTransport({
     host,
     port: Number(process.env.SMTP_PORT) || 587,
     secure: process.env.SMTP_SECURE === "true",
     auth: { user, pass },
+    connectionTimeout: Number(process.env.SMTP_CONNECTION_TIMEOUT) || 10000,
+    greetingTimeout: Number(process.env.SMTP_GREETING_TIMEOUT) || 10000,
+    socketTimeout: Number(process.env.SMTP_SOCKET_TIMEOUT) || 10000,
   });
 }
 
