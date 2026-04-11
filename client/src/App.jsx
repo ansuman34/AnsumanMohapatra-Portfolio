@@ -231,6 +231,26 @@ export default function App() {
 
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "name": "Ansuman Mohapatra",
+        "jobTitle": "Full Stack Developer",
+        "description": "MERN Stack Developer from Bhubaneswar, India. Building scalable web apps.",
+        "url": "https://your-vercel-domain.vercel.app",
+        "email": "mohapatraansuman34@gmail.com",
+        "telephone": "+91 78945 59501",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Bhubaneswar",
+          "addressRegion": "Odisha",
+          "addressCountry": "IN"
+        },
+        "sameAs": [
+          "https://github.com/ansuman34"
+        ],
+        "knowsAbout": ["MERN Stack", "React.js", "Node.js", "MongoDB", "AI"]
+      })}} />
       <div className="grain" aria-hidden="true" />
       <div className="orb orb-1" aria-hidden="true" />
       <div className="orb orb-2" aria-hidden="true" />
