@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://your-vercel-domain.vercel.app/sitemap.xml
+Sitemap: https://ansuman-mohapatra-portfolio.vercel.app/sitemap.xml

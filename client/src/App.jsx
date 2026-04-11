@@ -237,7 +237,7 @@ export default function App() {
         "name": "Ansuman Mohapatra",
         "jobTitle": "Full Stack Developer",
         "description": "MERN Stack Developer from Bhubaneswar, India. Building scalable web apps.",
-        "url": "https://your-vercel-domain.vercel.app",
+        "url": "https://ansuman-mohapatra-portfolio.vercel.app/",
         "email": "mohapatraansuman34@gmail.com",
         "telephone": "+91 78945 59501",
         "address": {
