@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
-const API = "/api/contact";
+const API = "https://ansumanmohapatra-portfolio-production.up.railway.app/api/contact";
 
 function scrollToId(id) {
   document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
