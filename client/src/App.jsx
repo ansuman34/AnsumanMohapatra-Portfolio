@@ -1,12 +1,25 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import SEOHelmet from './components/SEOHelmet';
 import emailjs from "@emailjs/browser";
+import { WeaveSpinner } from "@/components/ui/weave-spinner";
+
+const THEMES = ["gold-noir", "ocean-glow", "sunset-ember", "forest-mint", "violet-neon"];
+const DOODLE_COUNT = 5;
 
 const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID || "service_0reoan9";
 const EMAILJS_TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID || "template_qguj85h";
 const EMAILJS_PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || "";
 /** Inbox that receives form submissions — must match EmailJS template “To” if it uses {{to_email}} */
 const CONTACT_INBOX = (import.meta.env.VITE_CONTACT_EMAIL || "").trim();
+
+function getInitialTheme() {
+  if (typeof window === "undefined") return THEMES[0];
+  return THEMES[Math.floor(Math.random() * THEMES.length)];
+}
+
+if (typeof window !== "undefined") {
+  document.documentElement.setAttribute("data-theme", getInitialTheme());
+}
 
 function scrollToId(id) {
   document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
@@ -17,11 +30,72 @@ export default function App() {
   const navRef = useRef(null);
   const toggleRef = useRef(null);
   const nameInputRef = useRef(null);
+  const dollsRef = useRef(null);
+  const pageLoadTimeoutRef = useRef(null);
+  const pageTransitionTimeoutRef = useRef(null);
   const [navOpen, setNavOpen] = useState(false);
   const [activeProject, setActiveProject] = useState(null);
+  const [isPageLoading, setIsPageLoading] = useState(true);
+  const [currentTheme, setCurrentTheme] = useState(() => getInitialTheme());
   const [form, setForm] = useState({ name: "", email: "", message: "" });
   const [formStatus, setFormStatus] = useState({ type: "idle", text: "" });
   const [submitting, setSubmitting] = useState(false);
+  const [doodleThemes, setDoodleThemes] = useState(() =>
+    Array.from({ length: DOODLE_COUNT }, (_, index) => index % THEMES.length)
+  );
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", currentTheme);
+  }, [currentTheme]);
+
+  useEffect(() => {
+    let finished = false;
+    const startedAt = Date.now();
+    const minimumLoaderMs = 900;
+
+    const completeLoading = () => {
+      if (finished) return;
+      finished = true;
+      const elapsed = Date.now() - startedAt;
+      const remaining = Math.max(0, minimumLoaderMs - elapsed);
+      pageLoadTimeoutRef.current = window.setTimeout(() => {
+        setIsPageLoading(false);
+      }, remaining);
+    };
+
+    if (document.readyState === "complete") {
+      completeLoading();
+    } else {
+      window.addEventListener("load", completeLoading, { once: true });
+    }
+
+    const fallbackTimeout = window.setTimeout(completeLoading, 2600);
+
+    return () => {
+      window.removeEventListener("load", completeLoading);
+      window.clearTimeout(fallbackTimeout);
+      if (pageLoadTimeoutRef.current) {
+        window.clearTimeout(pageLoadTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isPageLoading) return;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isPageLoading]);
+
+  useEffect(() => {
+    return () => {
+      if (pageTransitionTimeoutRef.current) {
+        window.clearTimeout(pageTransitionTimeoutRef.current);
+      }
+      document.body.classList.remove("is-page-vanishing");
+    };
+  }, []);
 
   const projects = [
     {
@@ -154,17 +228,73 @@ export default function App() {
     return () => window.clearTimeout(t);
   }, []);
 
+  useEffect(() => {
+    const setLook = (x, y) => {
+      const target = dollsRef.current;
+      if (!target) return;
+      const lookX = Math.max(-1, Math.min(1, x));
+      const lookY = Math.max(-1, Math.min(1, y));
+      target.style.setProperty("--look-x", lookX.toFixed(3));
+      target.style.setProperty("--look-y", lookY.toFixed(3));
+    };
+
+    const onPointerMove = (e) => {
+      const x = (e.clientX / window.innerWidth - 0.5) * 2;
+      const y = (e.clientY / window.innerHeight - 0.5) * 2;
+      setLook(x, y);
+    };
+
+    const onPointerLeave = () => setLook(0, 0);
+
+    setLook(0, 0);
+    window.addEventListener("pointermove", onPointerMove, { passive: true });
+    window.addEventListener("pointerleave", onPointerLeave, { passive: true });
+    return () => {
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerleave", onPointerLeave);
+    };
+  }, []);
+
   const goContact = (e) => {
     e.preventDefault();
     closeNav();
-    scrollToId("contact");
-    window.setTimeout(() => nameInputRef.current?.focus(), 450);
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduceMotion) {
+      scrollToId("contact");
+      window.setTimeout(() => nameInputRef.current?.focus(), 450);
+      return;
+    }
+    document.body.classList.add("is-page-vanishing");
+    if (pageTransitionTimeoutRef.current) {
+      window.clearTimeout(pageTransitionTimeoutRef.current);
+    }
+    window.setTimeout(() => {
+      scrollToId("contact");
+      window.setTimeout(() => nameInputRef.current?.focus(), 450);
+    }, 120);
+    pageTransitionTimeoutRef.current = window.setTimeout(() => {
+      document.body.classList.remove("is-page-vanishing");
+    }, 340);
   };
 
   const onNavLink = (e, id) => {
     e.preventDefault();
     closeNav();
-    scrollToId(id);
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduceMotion) {
+      scrollToId(id);
+      return;
+    }
+    document.body.classList.add("is-page-vanishing");
+    if (pageTransitionTimeoutRef.current) {
+      window.clearTimeout(pageTransitionTimeoutRef.current);
+    }
+    window.setTimeout(() => {
+      scrollToId(id);
+    }, 120);
+    pageTransitionTimeoutRef.current = window.setTimeout(() => {
+      document.body.classList.remove("is-page-vanishing");
+    }, 340);
   };
 
   const onSubmit = async (e) => {
@@ -230,8 +360,33 @@ export default function App() {
     }
   };
 
+  const cycleDoodleTheme = (index) => {
+    setDoodleThemes((current) => {
+      const nextThemeIndex = (current[index] + 1) % THEMES.length;
+      setCurrentTheme(THEMES[nextThemeIndex]);
+      return current.map((themeIndex, itemIndex) =>
+        itemIndex === index ? nextThemeIndex : themeIndex
+      );
+    });
+  };
+
   return (
     <>
+      {isPageLoading && (
+        <div
+          className="page-loader"
+          data-theme={currentTheme}
+          role="status"
+          aria-live="polite"
+          aria-label="Page loading"
+        >
+          <div className="page-loader-inner">
+            <WeaveSpinner size={220} />
+            <p className="page-loader-text">Loading portfolio...</p>
+          </div>
+        </div>
+      )}
+      <div className={`app-shell${isPageLoading ? " is-loading" : ""}`}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
         "@context": "https://schema.org",
         "@type": "Person",
@@ -311,6 +466,32 @@ export default function App() {
 
       <main id="top">
         <section className="hero">
+          <div ref={dollsRef} className="hero-dolls" aria-hidden="true">
+            {doodleThemes.map((themeIndex, index) => (
+              <button
+                key={`doll-${index}`}
+                type="button"
+                className={`doll doll-${index + 1} theme-${themeIndex}`}
+                style={{ "--doll-i": index }}
+                onClick={() => cycleDoodleTheme(index)}
+                aria-label={`Switch doll ${index + 1} theme`}
+              >
+                <span className="doll-head">
+                  <span className="doll-ring" />
+                  <span className="doll-face">
+                    <span className="doll-eye">
+                      <span className="doll-pupil" />
+                    </span>
+                    <span className="doll-eye">
+                      <span className="doll-pupil" />
+                    </span>
+                    <span className="doll-mouth" />
+                  </span>
+                </span>
+                <span className="doll-body" />
+              </button>
+            ))}
+          </div>
           <p className="hero-eyebrow reveal" data-reveal>
             Full Stack Developer
           </p>
@@ -646,6 +827,7 @@ export default function App() {
       <footer className="site-footer">
         <p>© {new Date().getFullYear()} Ansuman Mohapatra. Crafted with care.</p>
       </footer>
+      </div>
     </>
   );
 }
