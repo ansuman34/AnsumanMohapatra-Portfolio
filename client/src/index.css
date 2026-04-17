@@ -1191,45 +1191,54 @@ main {
     --dolls-column: 0rem;
     justify-content: flex-start;
     padding-top: calc(var(--header-h) + 0.95rem);
-    padding-right: max(1rem, env(safe-area-inset-right));
-    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(4.6rem, env(safe-area-inset-right));
+    padding-left: max(4.6rem, env(safe-area-inset-left));
   }
 
   .hero-dolls {
-    position: relative;
-    left: auto;
-    top: auto;
+    position: absolute;
+    inset: 0;
+    left: 0;
+    top: 0;
     transform: none;
-    width: min(88vw, 18rem);
-    min-height: clamp(11.8rem, 40vw, 14.2rem);
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    grid-template-rows: repeat(3, auto);
-    gap: clamp(0.4rem, 2.5vw, 0.85rem) clamp(0.2rem, 1.8vw, 0.55rem);
-    margin: 0 auto 1rem;
+    width: 100%;
+    min-height: 100%;
+    display: block;
+    margin: 0;
   }
 
   .doll {
-    width: clamp(2.15rem, 25vw, 2.85rem);
+    position: absolute;
+    width: clamp(2rem, 16vw, 2.75rem);
   }
 
-  .doll-1 {
-    transform: translateY(-3%);
-  }
-
+  /* 3 doodles on the left of name area */
   .doll-2 {
-    transform: translateY(2%);
-  }
-
-  .doll-3 {
-    transform: translateY(2%);
+    left: 0.3rem;
+    top: 25%;
   }
 
   .doll-4 {
-    transform: translateY(0%);
+    left: 0.35rem;
+    top: 39%;
   }
 
   .doll-5 {
-    transform: translateY(0%);
+    left: 0.3rem;
+    top: 53%;
+  }
+
+  /* 2 doodles on the right of name area */
+  .doll-1 {
+    right: 0.35rem;
+    left: auto;
+    top: 28%;
+  }
+
+  .doll-3 {
+    right: 0.35rem;
+    left: auto;
+    top: 45%;
   }
 }
 
@@ -1263,34 +1272,36 @@ body.is-page-vanishing .app-shell {
   }
 
   .hero-dolls {
-    width: min(92vw, 15rem);
-    min-height: clamp(10.8rem, 44vw, 12.8rem);
-    gap: clamp(0.3rem, 2.8vw, 0.6rem) clamp(0.15rem, 2.1vw, 0.45rem);
-    margin-bottom: 0.8rem;
+    inset: 0;
   }
 
   .doll {
-    width: clamp(1.95rem, 26vw, 2.45rem);
-  }
-
-  .doll-1 {
-    transform: translateY(-2%);
+    width: clamp(1.75rem, 17vw, 2.3rem);
   }
 
   .doll-2 {
-    transform: translateY(1%);
-  }
-
-  .doll-3 {
-    transform: translateY(1%);
+    left: 0.15rem;
+    top: 24%;
   }
 
   .doll-4 {
-    transform: translateY(0%);
+    left: 0.2rem;
+    top: 38%;
   }
 
   .doll-5 {
-    transform: translateY(0%);
+    left: 0.15rem;
+    top: 52%;
+  }
+
+  .doll-1 {
+    right: 0.2rem;
+    top: 28%;
+  }
+
+  .doll-3 {
+    right: 0.2rem;
+    top: 44%;
   }
 
   .hero-actions .btn {
