@@ -467,14 +467,16 @@ export default function App() {
       <main id="top">
         <section className="hero">
           <div ref={dollsRef} className="hero-dolls" aria-hidden="true">
-            {doodleThemes.map((themeIndex, index) => (
+            {doodleThemes.map((themeIndex, index) => {
+              const previewThemeIndex = (themeIndex + 1) % THEMES.length;
+              return (
               <button
                 key={`doll-${index}`}
                 type="button"
-                className={`doll doll-${index + 1} theme-${themeIndex}`}
+                className={`doll doll-${index + 1} theme-${previewThemeIndex}`}
                 style={{ "--doll-i": index }}
                 onClick={() => cycleDoodleTheme(index)}
-                aria-label={`Switch doll ${index + 1} theme`}
+                aria-label={`Apply ${THEMES[previewThemeIndex]} theme`}
               >
                 <span className="doll-head">
                   <span className="doll-ring" />
@@ -490,7 +492,8 @@ export default function App() {
                 </span>
                 <span className="doll-body" />
               </button>
-            ))}
+              );
+            })}
           </div>
           <p className="hero-eyebrow reveal" data-reveal>
             Full Stack Developer
@@ -513,7 +516,7 @@ export default function App() {
           <div className="hero-meta reveal" data-reveal>
             <span>Bhubaneswar</span>
             <span className="dot">·</span>
-            <a href="https://github.com" target="_blank" rel="noopener noreferrer">
+            <a href="https://github.com/ansuman34/" target="_blank" rel="noopener noreferrer">
               GitHub
             </a>
             <span className="dot">·</span>

@@ -1270,6 +1270,16 @@ body.is-page-vanishing .app-shell {
     margin-left: auto;
     margin-right: auto;
   }
+  .hero-title {
+    font-size: clamp(1.5rem, 10vw, 2.5rem);
+    line-height: 1.1;
+    margin-bottom: 0.5rem;
+    padding-inline: 0.15rem;
+    word-break: break-word;
+    text-align: center;
+    letter-spacing: 0.01em;
+    text-wrap: balance;
+  }
 
   .hero-dolls {
     inset: 0;
@@ -1303,10 +1313,21 @@ body.is-page-vanishing .app-shell {
     right: 0.2rem;
     top: 44%;
   }
+  .hero-ti
 
   .hero-actions .btn {
     width: 100%;
     justify-content: center;
+  }
+}
+@media (max-width: 425px) {
+  .hero-title {
+    font-size: clamp(1.2rem, 8vw, 2.2rem);
+  }
+}
+@media (max-width: 320px) {
+  .hero-title {
+    font-size: clamp(1.1rem, 6vw, 2rem);
   }
 }
 
