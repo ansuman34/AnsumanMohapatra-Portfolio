@@ -4,6 +4,23 @@ import emailjs from "@emailjs/browser";
 import { WeaveSpinner } from "@/components/ui/weave-spinner";
 
 const THEMES = ["gold-noir", "ocean-glow", "sunset-ember", "forest-mint", "violet-neon"];
+
+function getThemeLabel(theme) {
+  switch (theme) {
+    case "gold-noir":
+      return "Gold Noir";
+    case "ocean-glow":
+      return "Ocean Glow";
+    case "sunset-ember":
+      return "Sunset Ember";
+    case "forest-mint":
+      return "Forest Mint";
+    case "violet-neon":
+      return "Violet Neon";
+    default:
+      return theme;
+  }
+}
 const DOODLE_COUNT = 5;
 
 const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID || "service_0reoan9";
@@ -40,13 +57,17 @@ export default function App() {
   const [form, setForm] = useState({ name: "", email: "", message: "" });
   const [formStatus, setFormStatus] = useState({ type: "idle", text: "" });
   const [submitting, setSubmitting] = useState(false);
-  const [doodleThemes, setDoodleThemes] = useState(() =>
+  // theme doodles removed — themes are controlled via navbar
+  const [doodleThemes] = useState(() =>
     Array.from({ length: DOODLE_COUNT }, (_, index) => index % THEMES.length)
   );
+
+  const [themesOpen, setThemesOpen] = useState(false);
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", currentTheme);
   }, [currentTheme]);
+
 
   useEffect(() => {
     let finished = false;
@@ -99,45 +120,41 @@ export default function App() {
 
   const projects = [
     {
-      title: "AI Resume Analyzer",
-      stack: "MERN + AI",
+      title: "YourTube - Video Streaming Platform",
+      stack: "Next.js · React · TypeScript · Express.js · MongoDB",
       summary:
-        "Full-stack AI-powered resume analysis — parsing, skill extraction, and candidate scoring with a responsive UI.",
+        "YouTube-like full-stack video streaming with authentication, uploads, subscriptions, likes, comments, watch history, and downloadable videos.",
       details:
-        "Built with React, Node.js, Express, and MongoDB. Includes resume upload, AI skill suggestion, candidate scoring, and recruiter dashboard features.",
-      github: "https://github.com/ansuman34/ai-resume-analyzer",
+        "Built a YouTube-inspired platform using Next.js, React, TypeScript, Tailwind CSS, Express.js, and MongoDB. Implemented user authentication, video uploads (Multer + MP4 streaming), subscriptions, likes/comments, watch history, and premium/free download logic. Created REST APIs with JWT auth and MongoDB schema design.",
+      github: "#",
     },
     {
-      title: "DocNow",
-      stack: "Healthcare web app",
+      title: "AI Resume Analyzer",
+      stack: "MERN Stack · AI Integration",
       summary:
-        "Medical appointment and symptom assistance platform with doctor booking, patient dashboard, and backend integrations.",
+        "AI-powered resume screening with resume upload, parsing, skill extraction, and candidate scoring.",
       details:
-        "Designed a full-stack healthcare platform with patient booking flows, appointment scheduling, and administrative dashboards using the MERN stack.",
-      github: "https://github.com/ansuman34/docnow",
+        "Developed an AI-driven resume screening application using the MERN stack. Features include resume upload, parsing, skill extraction, and candidate scoring. Designed a responsive UI and optimized backend performance, integrating AI-based resume analysis workflows.",
+      github: "#",
     },
     {
       title: "KFC Clone",
-      stack: "MERN",
-      summary: "Responsive multi-page restaurant experience with cart flow, auth, and order management.",
+      stack: "React.js · Node.js · Express.js · MongoDB",
+      summary:
+        "KFC-inspired full-stack experience with authentication, cart functionality, and core ordering flows.",
       details:
-        "Developed a clone UI with ordering, cart management, user authentication, and backend APIs for product data and checkout handling.",
-      github: "https://github.com/ansuman34/kfc-clone",
-    },
-    {
-      title: "GlideOn",
-      stack: "Prototype",
-      summary: "Eco-friendly commute platform prototype built with HTML, CSS, and JavaScript.",
-      details:
-        "Created a polished prototype for green commuting, featuring route browsing, vehicle options, and a lightweight responsive frontend.",
-      github: "https://github.com/ansuman34/glideon",
+        "Built a full-stack KFC-inspired web application using the MERN stack. Implemented user authentication, cart functionality, responsive UI, and core pages like home, menu, deals, sign-in, and checkout. Integrated frontend-backend workflows with MongoDB for dynamic data handling.",
+      github: "#",
     },
   ];
 
   const closeNav = useCallback(() => {
     setNavOpen(false);
+    setThemesOpen(false);
     document.body.style.overflow = "";
   }, []);
+
+
 
   const openProject = (project) => {
     setActiveProject(project);
@@ -162,6 +179,9 @@ export default function App() {
     setNavOpen(true);
     document.body.style.overflow = "hidden";
   }, []);
+
+  const navThemesRef = useRef(null);
+
 
   useEffect(() => {
     const header = headerRef.current;
@@ -297,10 +317,34 @@ export default function App() {
     }, 340);
   };
 
+  useEffect(() => {
+    const onDocPointerDown = (e) => {
+      if (!themesOpen) return;
+      const panel = navThemesRef.current;
+      if (!panel) return;
+      if (panel.contains(e.target)) return;
+      setThemesOpen(false);
+    };
+
+    const onDocKeyDown = (e) => {
+      if (e.key === "Escape") setThemesOpen(false);
+    };
+
+    document.addEventListener("pointerdown", onDocPointerDown);
+    document.addEventListener("keydown", onDocKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", onDocPointerDown);
+      document.removeEventListener("keydown", onDocKeyDown);
+    };
+  }, [themesOpen]);
+
   const onSubmit = async (e) => {
     e.preventDefault();
     setFormStatus({ type: "idle", text: "" });
+
     if (!EMAILJS_PUBLIC_KEY.trim()) {
+
+
       setFormStatus({
         type: "error",
         text: "Add VITE_EMAILJS_PUBLIC_KEY to client/.env (see client/.env.example), then restart Vite.",
@@ -360,15 +404,7 @@ export default function App() {
     }
   };
 
-  const cycleDoodleTheme = (index) => {
-    setDoodleThemes((current) => {
-      const nextThemeIndex = (current[index] + 1) % THEMES.length;
-      setCurrentTheme(THEMES[nextThemeIndex]);
-      return current.map((themeIndex, itemIndex) =>
-        itemIndex === index ? nextThemeIndex : themeIndex
-      );
-    });
-  };
+
 
   return (
     <>
@@ -458,6 +494,46 @@ export default function App() {
           <a href="#education" onClick={(e) => onNavLink(e, "education")}>
             Education
           </a>
+          <a href="#resume" onClick={(e) => onNavLink(e, "resume")}>
+            Resume
+          </a>
+
+
+          <div className="nav-themes" aria-label="Theme selector" ref={navThemesRef}>
+            <button
+              type="button"
+              className="nav-themes-toggle"
+              aria-haspopup="menu"
+              aria-expanded={themesOpen}
+              onClick={() => setThemesOpen((v) => !v)}
+            >
+              Themes: <span className="nav-themes-current">{getThemeLabel(currentTheme)}</span>
+              <span className="nav-themes-caret" aria-hidden="true">▾</span>
+            </button>
+
+            <div
+              className={`nav-themes-list${themesOpen ? " is-open" : ""}`}
+              role="menu"
+              aria-hidden={!themesOpen}
+            >
+              {THEMES.map((theme) => (
+                <button
+                  key={theme}
+                  type="button"
+                  role="menuitem"
+                  className={`nav-theme-btn${theme === currentTheme ? " is-active" : ""}`}
+                  onClick={() => {
+                    setCurrentTheme(theme);
+                    setThemesOpen(false);
+                  }}
+                >
+                  {getThemeLabel(theme)}
+                </button>
+              ))}
+            </div>
+          </div>
+
+
           <a href="#contact" className="nav-cta" onClick={(e) => onNavLink(e, "contact")}>
             Contact
           </a>
@@ -466,38 +542,26 @@ export default function App() {
 
       <main id="top">
         <section className="hero">
-          <div ref={dollsRef} className="hero-dolls" aria-hidden="true">
-            {doodleThemes.map((themeIndex, index) => {
-              const previewThemeIndex = (themeIndex + 1) % THEMES.length;
-              return (
-              <button
-                key={`doll-${index}`}
-                type="button"
-                className={`doll doll-${index + 1} theme-${previewThemeIndex}`}
-                style={{ "--doll-i": index }}
-                onClick={() => cycleDoodleTheme(index)}
-                aria-label={`Apply ${THEMES[previewThemeIndex]} theme`}
-              >
-                <span className="doll-head">
-                  <span className="doll-ring" />
-                  <span className="doll-face">
-                    <span className="doll-eye">
-                      <span className="doll-pupil" />
-                    </span>
-                    <span className="doll-eye">
-                      <span className="doll-pupil" />
-                    </span>
-                    <span className="doll-mouth" />
-                  </span>
-                </span>
-                <span className="doll-body" />
-              </button>
-              );
-            })}
-          </div>
+          {/* Theme doodles removed (now controlled via navbar Themes) */}
+          <div ref={dollsRef} className="hero-dolls" aria-hidden="true" />
           <p className="hero-eyebrow reveal" data-reveal>
             Full Stack Developer
           </p>
+
+          <div className="hero-avatar reveal" data-reveal>
+            <div className="hero-avatar-inner">
+              <img
+                className="hero-avatar-img"
+                src="/Ansuman_pfp.jpg"
+                alt="Ansuman Mohapatra"
+                loading="eager"
+                decoding="async"
+              />
+              <span className="hero-avatar-glow" aria-hidden="true" />
+              <span className="hero-avatar-ring" aria-hidden="true" />
+            </div>
+          </div>
+
           <h1 className="hero-title reveal" data-reveal>
             <span className="name">Ansuman</span>
             <span className="name-accent">Mohapatra</span>
@@ -606,23 +670,6 @@ export default function App() {
                 <div className="timeline-marker" />
                 <div className="timeline-body">
                   <div className="timeline-top">
-                    <h3>Full Stack Developer Intern</h3>
-                    <time dateTime="2026-01">Jan 2026 – Mar 2026</time>
-                  </div>
-                  <p className="company">
-                    Elevance Skills <span className="badge">Virtual</span>
-                  </p>
-                  <ul>
-                    <li>Developed and maintained full-stack web applications using the MERN stack</li>
-                    <li>Designed RESTful APIs for seamless frontend–backend communication</li>
-                    <li>Improved UI responsiveness and performance across devices</li>
-                  </ul>
-                </div>
-              </li>
-              <li className="timeline-item reveal" data-reveal>
-                <div className="timeline-marker" />
-                <div className="timeline-body">
-                  <div className="timeline-top">
                     <h3>MERN Stack Developer Intern</h3>
                     <time dateTime="2025-07">Jul 2025 – Aug 2025</time>
                   </div>
@@ -630,24 +677,7 @@ export default function App() {
                     Codebeat <span className="badge">Virtual</span>
                   </p>
                   <ul>
-                    <li>Built dynamic web applications using React.js and Node.js</li>
-                    <li>Implemented authentication and user session management</li>
-                    <li>Collaborated in an agile team environment</li>
-                  </ul>
-                </div>
-              </li>
-              <li className="timeline-item reveal" data-reveal>
-                <div className="timeline-marker" />
-                <div className="timeline-body">
-                  <div className="timeline-top">
-                    <h3>MERN Stack Developer Intern</h3>
-                    <time dateTime="2024-07">Jul 2024 – Aug 2024</time>
-                  </div>
-                  <p className="company">
-                    Codebeat <span className="badge">Virtual</span>
-                  </p>
-                  <ul>
-                    <li>Same role continuity — MERN development and team delivery</li>
+                    <li>Worked on MERN stack development and full-stack project implementation</li>
                   </ul>
                 </div>
               </li>
@@ -710,12 +740,44 @@ export default function App() {
           </div>
         )}
 
-        <section id="education" className="section education">
+        <section id="resume" className="section resume">
           <div className="section-inner">
             <header className="section-head">
               <span className="section-label">05</span>
+              <h2>want know about my full background??</h2>
+            </header>
+
+            <div className="resume-grid">
+              <div className="resume-copy" data-reveal>
+
+                <p className="lead">
+                  Download my concise resume for a quick overview, or explore the extended version for a deeper look into my academic and technical journey.
+                </p>
+
+                <div className="resume-actions">
+                  <a
+                    className="btn btn-primary"
+                    href="/Ansuman_Mohapatra_Resume.pdf"
+                    download
+                  >
+                    Download resume <span className="btn-icon" aria-hidden="true">↓</span>
+                  </a>
+                </div>
+
+              </div>
+
+
+            </div>
+          </div>
+        </section>
+
+        <section id="education" className="section education">
+          <div className="section-inner">
+            <header className="section-head">
+              <span className="section-label">06</span>
               <h2>Education & certifications</h2>
             </header>
+
             <div className="edu-grid">
               <article className="edu-card reveal" data-reveal>
                 <h3>B.Tech, Computer Science & Engineering</h3>
@@ -723,22 +785,23 @@ export default function App() {
                 <time dateTime="2023/2027">2023 – 2027</time>
               </article>
               <article className="edu-card reveal" data-reveal>
-                <h3>Class XII (Science)</h3>
-                <p>
-                  CHSE Odisha — <strong>84.13%</strong>
-                </p>
-                <time dateTime="2023">2023</time>
+                <h3>Higher Secondary Education (Science)</h3>
+                <p>Tetrahedron Junior Science College — <strong>84.13%</strong></p>
+                <time dateTime="2021/2023">2021 – 2023</time>
               </article>
               <article className="edu-card reveal" data-reveal>
-                <h3>Class X</h3>
-                <p>
-                  BSE Odisha — <strong>91.50%</strong>
-                </p>
+                <h3>Matriculation</h3>
+                <p>Panchayati Raj High School — <strong>91.5%</strong></p>
                 <time dateTime="2021">2021</time>
               </article>
               <article className="edu-card cert reveal" data-reveal>
-                <h3>Certification</h3>
-                <p>MERN Stack Development — Beat Code (2024)</p>
+                <h3>Certifications</h3>
+                <p>
+                  MERN Stack Development — Beat Code (Jun 2024 – Aug 2024)
+                </p>
+                <p>
+                  MERN Stack Developer Intern — Codebeat (Jul 2025 – Aug 2025)
+                </p>
               </article>
             </div>
           </div>
